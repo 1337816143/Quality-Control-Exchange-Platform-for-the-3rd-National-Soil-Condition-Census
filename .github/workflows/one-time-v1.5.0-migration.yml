@@ -3,14 +3,17 @@ name: One-time v1.5.0 migration
 on:
   issues:
     types: [opened]
+  pull_request:
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   migrate:
-    if: github.event.issue.title == '[automation] Generate v1.5.0'
+    if: github.event.issue.title == '[automation] Generate v1.5.0' || github.event.pull_request.title == 'feat: v1.5.0 platform upgrade'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
