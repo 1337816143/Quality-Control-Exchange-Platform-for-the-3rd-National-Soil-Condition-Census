@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 VALIDATOR = r'''import fs from 'node:fs';
 import path from 'node:path';
@@ -138,4 +139,9 @@ text = runtime_validation.read_text(encoding='utf-8')
 text = text.replace(".replace(/s+/g, '')", ".replace(/\\s+/g, '')")
 runtime_validation.write_text(text, encoding='utf-8')
 
-print('Applied stable validator, exporter, admin newline handling, whitespace normalization and optional reference archive fallback.')
+package_path = Path('package.json')
+package = json.loads(package_path.read_text(encoding='utf-8'))
+package['scripts']['serve'] = 'npm run build && http-server dist -p 4173 -c-1 --silent'
+package_path.write_text(json.dumps(package, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+print('Applied stable validator, exporter, admin newline handling, whitespace normalization, dist-based test server and optional reference archive fallback.')
