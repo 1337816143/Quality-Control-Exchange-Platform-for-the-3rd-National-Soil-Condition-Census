@@ -1,1 +1,1 @@
-Trigger isolated v1.5.0 validation after removing the competing scheduled workflow.
+Trigger final v1.5.0 validation with stateful admin mocks, dist serving and write-excel-file v4 export.
