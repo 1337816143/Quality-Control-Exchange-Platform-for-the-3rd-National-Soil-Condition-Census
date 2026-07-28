@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   migrate:
-    if: github.event.issue.title == '[automation] Generate v1.5.0 final'
+    if: github.event.issue.title == '[automation] Generate v1.5.0 final chromium-tablet'
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
