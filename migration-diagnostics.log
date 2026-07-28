@@ -2,7 +2,7 @@
 Collecting pillow
   Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
 Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.9 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 12.0 MB/s  0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 53.5 MB/s  0:00:00
 Installing collected packages: pillow
 Successfully installed pillow-12.3.0
 == Generate transparent PNG logo ==
@@ -15,6 +15,7 @@ Successfully installed pillow-12.3.0
   "orphanFiles": 179,
   "duplicateKeys": 0
 }
+== Repair generated path separator regex ==
 == Generate dependency lockfile ==
 
 up to date, audited 63 packages in 3s
@@ -31,7 +32,7 @@ Run `npm audit` for details.
 == Install dependencies ==
 npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
-added 61 packages, and audited 62 packages in 973ms
+added 61 packages, and audited 62 packages in 1s
 
 15 packages are looking for funding
   run `npm fund` for details
@@ -47,11 +48,11 @@ Run `npm audit` for details.
 > soil-quality-control-exchange-platform@1.5.0 validate
 > node scripts/validate-data.mjs && node scripts/check-logo.mjs
 
-file:///home/runner/work/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/scripts/validate-data.mjs:16
-  const rel = path.join('data',doc.file); indexed.add(rel.replace(/\/g,'/'));
-                                                                  ^^^^^^^
+file:///home/runner/work/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/scripts/validate-data.mjs:24
+if (errors.length) { console.error(errors.join('
+                                               ^
 
-SyntaxError: missing ) after argument list
+SyntaxError: Invalid or unexpected token
     at compileSourceTextModule (node:internal/modules/esm/utils:346:16)
     at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:146:18)
     at #translate (node:internal/modules/esm/loader:497:12)
