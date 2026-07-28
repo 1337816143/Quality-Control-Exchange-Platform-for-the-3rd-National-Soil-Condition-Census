@@ -2,7 +2,7 @@
 Collecting pillow
   Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
 Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.9 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 63.3 MB/s  0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 155.6 MB/s  0:00:00
 Installing collected packages: pillow
 Successfully installed pillow-12.3.0
 == Generate transparent PNG logo ==
@@ -17,10 +17,12 @@ Successfully installed pillow-12.3.0
 }
 == Apply post-migration fixes ==
 Applied stable validator, exporter, admin newline handling and optional reference archive fallback.
+== Apply generated test fixes ==
+Scoped empty-state assertion to the result panel.
 == Check generated JavaScript syntax ==
 == Generate dependency lockfile ==
 
-up to date, audited 63 packages in 3s
+up to date, audited 63 packages in 2s
 
 15 packages are looking for funding
   run `npm fund` for details
@@ -34,7 +36,7 @@ Run `npm audit` for details.
 == Install dependencies ==
 npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
-added 61 packages, and audited 62 packages in 4s
+added 61 packages, and audited 62 packages in 1s
 
 15 packages are looking for funding
   run `npm fund` for details
@@ -163,41 +165,41 @@ Installing dependencies...
 Switching to root user to install dependencies...
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
 Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
-Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
 Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+Get:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease [2548 B]
+Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
 Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
 Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
 Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
-Get:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease [2548 B]
-Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [11.7 kB]
-Get:10 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [213 kB]
-Get:11 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [246 kB]
-Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1154 kB]
-Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [278 kB]
-Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [180 kB]
-Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1679 kB]
-Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [334 kB]
-Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [389 kB]
-Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1367 kB]
-Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [308 kB]
-Get:20 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [45.4 kB]
-Get:21 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [12.3 kB]
-Get:22 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
-Get:23 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5760 B]
-Get:24 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [32.5 kB]
-Get:25 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
-Get:26 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [898 kB]
-Get:27 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [198 kB]
-Get:28 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [46.3 kB]
-Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1199 kB]
-Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [239 kB]
-Get:31 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.2 kB]
-Get:32 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1273 kB]
-Get:33 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [290 kB]
-Get:34 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [40.3 kB]
-Get:35 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [10.6 kB]
-Get:36 https://dl.google.com/linux/chrome-stable/deb stable/main amd64 Packages [1424 B]
-Fetched 10.9 MB in 1s (10.6 MB/s)
+Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [246 kB]
+Get:10 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [11.7 kB]
+Get:11 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [213 kB]
+Get:12 https://dl.google.com/linux/chrome-stable/deb stable/main amd64 Packages [1424 B]
+Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1154 kB]
+Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [278 kB]
+Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [180 kB]
+Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1679 kB]
+Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [334 kB]
+Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [389 kB]
+Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1367 kB]
+Get:20 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [308 kB]
+Get:21 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [45.4 kB]
+Get:22 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [12.3 kB]
+Get:23 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+Get:24 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5760 B]
+Get:25 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [32.5 kB]
+Get:26 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
+Get:27 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [898 kB]
+Get:28 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [198 kB]
+Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [46.3 kB]
+Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1199 kB]
+Get:31 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [239 kB]
+Get:32 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.2 kB]
+Get:33 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1273 kB]
+Get:34 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [290 kB]
+Get:35 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [40.3 kB]
+Get:36 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [10.6 kB]
+Fetched 10.9 MB in 1s (7501 kB/s)
 Reading package lists...
 Reading package lists...
 Building dependency tree...
@@ -273,7 +275,7 @@ Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings a
 Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
 Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
 Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
-Fetched 21.1 MB in 1s (37.8 MB/s)
+Fetched 21.1 MB in 1s (31.5 MB/s)
 Selecting previously unselected package fonts-ipafont-gothic.
 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 202954 files and directories currently installed.)
 Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
@@ -369,81 +371,382 @@ Chrome Headless Shell 151.0.7922.34 (playwright chromium-headless-shell v1234) d
 > soil-quality-control-exchange-platform@1.5.0 test:e2e
 > playwright test --project=desktop
 
-[WebServer] (node:3144) [DEP0066] DeprecationWarning: OutgoingMessage.prototype._headers is deprecated
+[WebServer] (node:3286) [DEP0066] DeprecationWarning: OutgoingMessage.prototype._headers is deprecated
 [WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
 
 Running 8 tests using 1 worker
-··×F···°·
+······°·
+  1 skipped
+  7 passed (6.4s)
+== Tablet end-to-end tests ==
 
-  1) [desktop] › tests/e2e/platform.spec.js:26:1 › 缺失筛选和空结果状态 ──────────────────────────────────────
+> soil-quality-control-exchange-platform@1.5.0 test:e2e
+> playwright test --project=tablet
 
-    Error: expect(locator).toContainText(expected) failed
+[WebServer] (node:3480) [DEP0066] DeprecationWarning: OutgoingMessage.prototype._headers is deprecated
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
 
-    Locator: locator('.empty-state')
-    Expected substring: "没有符合"
-    Error: strict mode violation: locator('.empty-state') resolved to 2 elements:
-        1) <div class="empty-state">没有符合当前筛选条件的记录。</div> aka getByText('没有符合当前筛选条件的记录。')
-        2) <div class="empty-state">正在加载参考文件目录……</div> aka locator('#referencePanel').getByText('正在加载参考文件目录……')
+Running 8 tests using 1 worker
+×F×F×F×F×F×F×F×F
 
-    Call log:
-      - Expect "toContainText" with timeout 5000ms
-      - waiting for locator('.empty-state')
+  1) [tablet] › tests/e2e/platform.spec.js:14:1 › 三个成果页签与参考资料页可切换 ──────────────────────────────────
 
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
-      26 | test('缺失筛选和空结果状态', async ({ page }) => {
-      27 |   await page.selectOption('select[name="missing"]','missing'); await expect(page.locator('[data-missing="true"]').first()).toBeVisible();
-    > 28 |   await page.fill('input[name="query"]','__不存在的任务单元__'); await expect(page.locator('.empty-state')).toContainText('没有符合');
-         |                                                                                                     ^
-      29 | });
-      30 |
-      31 | test('单文件和多批次成果可打开', async ({ page }) => {
-        at /home/runner/work/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/tests/e2e/platform.spec.js:28:101
-
-    Error Context: test-results/platform-缺失筛选和空结果状态-desktop/error-context.md
+    Error Context: test-results/platform-三个成果页签与参考资料页可切换-tablet/error-context.md
 
     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/platform-缺失筛选和空结果状态-desktop/trace.zip
+    test-results/platform-三个成果页签与参考资料页可切换-tablet/trace.zip
     Usage:
 
-        npx playwright show-trace test-results/platform-缺失筛选和空结果状态-desktop/trace.zip
+        npx playwright show-trace test-results/platform-三个成果页签与参考资料页可切换-tablet/trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
 
-    Error: expect(locator).toContainText(expected) failed
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
-    Locator: locator('.empty-state')
-    Expected substring: "没有符合"
-    Error: strict mode violation: locator('.empty-state') resolved to 2 elements:
-        1) <div class="empty-state">没有符合当前筛选条件的记录。</div> aka getByText('没有符合当前筛选条件的记录。')
-        2) <div class="empty-state">正在加载参考文件目录……</div> aka locator('#referencePanel').getByText('正在加载参考文件目录……')
-
-    Call log:
-      - Expect "toContainText" with timeout 5000ms
-      - waiting for locator('.empty-state')
-
-
-      26 | test('缺失筛选和空结果状态', async ({ page }) => {
-      27 |   await page.selectOption('select[name="missing"]','missing'); await expect(page.locator('[data-missing="true"]').first()).toBeVisible();
-    > 28 |   await page.fill('input[name="query"]','__不存在的任务单元__'); await expect(page.locator('.empty-state')).toContainText('没有符合');
-         |                                                                                                     ^
-      29 | });
-      30 |
-      31 | test('单文件和多批次成果可打开', async ({ page }) => {
-        at /home/runner/work/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/tests/e2e/platform.spec.js:28:101
-
-    Error Context: test-results/platform-缺失筛选和空结果状态-desktop-retry1/error-context.md
+    Error Context: test-results/platform-三个成果页签与参考资料页可切换-tablet-retry1/error-context.md
 
     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/platform-缺失筛选和空结果状态-desktop-retry1/trace.zip
+    test-results/platform-三个成果页签与参考资料页可切换-tablet-retry1/trace.zip
     Usage:
 
-        npx playwright show-trace test-results/platform-缺失筛选和空结果状态-desktop-retry1/trace.zip
+        npx playwright show-trace test-results/platform-三个成果页签与参考资料页可切换-tablet-retry1/trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  1 failed
-    [desktop] › tests/e2e/platform.spec.js:26:1 › 缺失筛选和空结果状态 ───────────────────────────────────────
-  1 skipped
-  6 passed (5.5s)
+  2) [tablet] › tests/e2e/platform.spec.js:19:1 › 全省、南北片区统计可以切换 ────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-全省、南北片区统计可以切换-tablet/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-全省、南北片区统计可以切换-tablet/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-全省、南北片区统计可以切换-tablet/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-全省、南北片区统计可以切换-tablet-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-全省、南北片区统计可以切换-tablet-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-全省、南北片区统计可以切换-tablet-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [tablet] › tests/e2e/platform.spec.js:26:1 › 缺失筛选和空结果状态 ───────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-缺失筛选和空结果状态-tablet/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-缺失筛选和空结果状态-tablet/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-缺失筛选和空结果状态-tablet/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-缺失筛选和空结果状态-tablet-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-缺失筛选和空结果状态-tablet-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-缺失筛选和空结果状态-tablet-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [tablet] › tests/e2e/platform.spec.js:31:1 › 单文件和多批次成果可打开 ─────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-单文件和多批次成果可打开-tablet/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-单文件和多批次成果可打开-tablet/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-单文件和多批次成果可打开-tablet/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-单文件和多批次成果可打开-tablet-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-单文件和多批次成果可打开-tablet-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-单文件和多批次成果可打开-tablet-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [tablet] › tests/e2e/platform.spec.js:36:1 › 管理员凭证、上传弹窗与键盘关闭 ──────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-管理员凭证、上传弹窗与键盘关闭-tablet/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-管理员凭证、上传弹窗与键盘关闭-tablet/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-管理员凭证、上传弹窗与键盘关闭-tablet/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-管理员凭证、上传弹窗与键盘关闭-tablet-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-管理员凭证、上传弹窗与键盘关闭-tablet-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-管理员凭证、上传弹窗与键盘关闭-tablet-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [tablet] › tests/e2e/platform.spec.js:41:1 › 上传模拟流程 ───────────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-上传模拟流程-tablet/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-上传模拟流程-tablet/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-上传模拟流程-tablet/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-上传模拟流程-tablet-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-上传模拟流程-tablet-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-上传模拟流程-tablet-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [tablet] › tests/e2e/platform.spec.js:47:1 › 移动端转换为卡片视图 ───────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-移动端转换为卡片视图-tablet/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-移动端转换为卡片视图-tablet/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-移动端转换为卡片视图-tablet/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-移动端转换为卡片视图-tablet-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-移动端转换为卡片视图-tablet-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-移动端转换为卡片视图-tablet-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [tablet] › tests/e2e/platform.spec.js:52:1 › Logo 使用透明 PNG 且比例完整 ──────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-Logo-使用透明-PNG-且比例完整-tablet/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-Logo-使用透明-PNG-且比例完整-tablet/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-Logo-使用透明-PNG-且比例完整-tablet/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/webkit-2336/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/platform-Logo-使用透明-PNG-且比例完整-tablet-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-Logo-使用透明-PNG-且比例完整-tablet-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-Logo-使用透明-PNG-且比例完整-tablet-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    [tablet] › tests/e2e/platform.spec.js:14:1 › 三个成果页签与参考资料页可切换 ───────────────────────────────────
+    [tablet] › tests/e2e/platform.spec.js:19:1 › 全省、南北片区统计可以切换 ─────────────────────────────────────
+    [tablet] › tests/e2e/platform.spec.js:26:1 › 缺失筛选和空结果状态 ────────────────────────────────────────
+    [tablet] › tests/e2e/platform.spec.js:31:1 › 单文件和多批次成果可打开 ──────────────────────────────────────
+    [tablet] › tests/e2e/platform.spec.js:36:1 › 管理员凭证、上传弹窗与键盘关闭 ───────────────────────────────────
+    [tablet] › tests/e2e/platform.spec.js:41:1 › 上传模拟流程 ────────────────────────────────────────────
+    [tablet] › tests/e2e/platform.spec.js:47:1 › 移动端转换为卡片视图 ────────────────────────────────────────
+    [tablet] › tests/e2e/platform.spec.js:52:1 › Logo 使用透明 PNG 且比例完整 ───────────────────────────────
