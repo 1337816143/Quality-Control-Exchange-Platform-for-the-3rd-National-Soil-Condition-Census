@@ -9,9 +9,11 @@ permissions:
 
 jobs:
   migrate:
-    if: github.event.head_commit.message != 'chore: generate v1.5.0 structure'
+    if: >-
+      !contains(github.event.head_commit.message, 'release v1.5.0 platform upgrade') &&
+      !contains(github.event.head_commit.message, 'record v1.5.0 migration diagnostics')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 50
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
@@ -28,27 +30,53 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Generate transparent PNG logo
+      - name: Run migration, validation and tests
+        shell: bash
         run: |
-          python -m pip install --disable-pip-version-check pillow
-          python scripts/bootstrap-logo.py
+          set +e
+          rm -f migration-failure.log migration-diagnostics.log
+          {
+            set -euo pipefail
+            echo '== Install Pillow =='
+            python -m pip install --disable-pip-version-check pillow
+            echo '== Generate transparent PNG logo =='
+            python scripts/bootstrap-logo.py
+            echo '== Generate v1.5.0 structure =='
+            node scripts/migrate-v1.5.0.mjs
+            echo '== Generate dependency lockfile =='
+            npm install --package-lock-only --ignore-scripts
+            echo '== Install dependencies =='
+            npm ci
+            echo '== Validate data and logo =='
+            npm run validate
+            echo '== Build static site =='
+            npm run build
+            echo '== Install Playwright Chromium =='
+            npx playwright install --with-deps chromium
+            echo '== Desktop end-to-end tests =='
+            npm run test:e2e -- --project=desktop
+            echo '== Tablet end-to-end tests =='
+            npm run test:e2e -- --project=tablet
+            echo '== Mobile end-to-end tests =='
+            npm run test:e2e -- --project=mobile
+          } 2>&1 | tee /tmp/migration-diagnostics.log
+          status=${PIPESTATUS[0]}
 
-      - name: Generate v1.5.0 structure
-        run: node scripts/migrate-v1.5.0.mjs
-
-      - name: Generate dependency lockfile
-        run: npm install --package-lock-only --ignore-scripts
-
-      - name: Install validation dependencies
-        run: npm ci
-
-      - name: Validate generated repository
-        run: npm run validate
-
-      - name: Commit generated structure
-        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "chore: generate v1.5.0 structure"
-          git push origin HEAD:agent/v1.5.0-platform-upgrade
+
+          if [ "$status" -eq 0 ]; then
+            rm -f migration-failure.log migration-diagnostics.log
+            git add -A
+            git commit -m "feat: release v1.5.0 platform upgrade"
+            git push origin HEAD:agent/v1.5.0-platform-upgrade
+            exit 0
+          fi
+
+          git reset --hard HEAD
+          cp /tmp/migration-diagnostics.log migration-diagnostics.log
+          printf '%s\n' "v1.5.0 migration failed at $(date -u +%FT%TZ). See migration-diagnostics.log." > migration-failure.log
+          git add migration-failure.log migration-diagnostics.log
+          git commit -m "chore: record v1.5.0 migration diagnostics" || true
+          git push origin HEAD:agent/v1.5.0-platform-upgrade || true
+          exit "$status"
