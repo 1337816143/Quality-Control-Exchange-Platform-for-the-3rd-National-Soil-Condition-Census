@@ -3,6 +3,9 @@ name: One-time v1.5.0 finalization
 on:
   issues:
     types: [opened]
+  push:
+    branches: [admin-import-and-reference-files]
+    paths: [v1.5.0-finalize.trigger]
   schedule:
     - cron: '*/5 * * * *'
 
@@ -16,7 +19,7 @@ concurrency:
 
 jobs:
   finalize:
-    if: github.event_name == 'schedule' || github.event.issue.title == '[automation] Finalize v1.5.0 after XLSX fix'
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.issue.title == '[automation] Finalize v1.5.0 after XLSX fix'
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
