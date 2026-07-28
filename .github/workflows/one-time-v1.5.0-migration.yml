@@ -2,9 +2,9 @@ name: One-time v1.5.0 migration
 
 on:
   issues:
-    types: [opened]
+    types: [opened, reopened]
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened]
 
 permissions:
   contents: write
@@ -15,7 +15,7 @@ jobs:
   migrate:
     if: github.event.issue.title == '[automation] Generate v1.5.0' || github.event.pull_request.title == 'feat: v1.5.0 platform upgrade'
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 50
     steps:
       - name: Checkout target branch
         uses: actions/checkout@v4
@@ -33,49 +33,51 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Generate transparent PNG logo
+      - name: Run migration, validation and tests
+        shell: bash
         run: |
-          python -m pip install --disable-pip-version-check pillow
-          python scripts/bootstrap-logo.py
+          set +e
+          rm -f migration-failure.log migration-diagnostics.log
+          {
+            set -euo pipefail
+            echo '== Install Pillow =='
+            python -m pip install --disable-pip-version-check pillow
+            echo '== Generate transparent PNG logo =='
+            python scripts/bootstrap-logo.py
+            echo '== Generate v1.5.0 structure =='
+            node scripts/migrate-v1.5.0.mjs
+            echo '== Generate dependency lockfile =='
+            npm install --package-lock-only --ignore-scripts
+            echo '== Install dependencies =='
+            npm ci
+            echo '== Validate data and logo =='
+            npm run validate
+            echo '== Build static site =='
+            npm run build
+            echo '== Install Playwright Chromium =='
+            npx playwright install --with-deps chromium
+            echo '== Desktop end-to-end tests =='
+            npm run test:e2e -- --project=desktop
+            echo '== Mobile end-to-end tests =='
+            npm run test:e2e -- --project=mobile
+          } 2>&1 | tee /tmp/migration-diagnostics.log
+          status=${PIPESTATUS[0]}
 
-      - name: Generate v1.5.0 structure
-        run: node scripts/migrate-v1.5.0.mjs
-
-      - name: Generate dependency lockfile
-        run: npm install --package-lock-only --ignore-scripts
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Validate data and logo
-        run: npm run validate
-
-      - name: Build static site
-        run: npm run build
-
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-
-      - name: Run desktop end-to-end tests
-        run: npm run test:e2e -- --project=desktop
-
-      - name: Run mobile end-to-end tests
-        run: npm run test:e2e -- --project=mobile
-
-      - name: Commit verified v1.5.0
-        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "feat: release v1.5.0 platform upgrade"
-          git push origin HEAD:agent/v1.5.0-platform-upgrade
 
-      - name: Record failure diagnostics
-        if: failure()
-        run: |
-          printf '%s\n' "v1.5.0 migration failed at $(date -u +%FT%TZ). Review the workflow job logs." > migration-failure.log
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add migration-failure.log
-          git commit -m "chore: record v1.5.0 migration failure" || true
+          if [ "$status" -eq 0 ]; then
+            rm -f migration-failure.log migration-diagnostics.log
+            git add -A
+            git commit -m "feat: release v1.5.0 platform upgrade"
+            git push origin HEAD:agent/v1.5.0-platform-upgrade
+            exit 0
+          fi
+
+          git reset --hard HEAD
+          cp /tmp/migration-diagnostics.log migration-diagnostics.log
+          printf '%s\n' "v1.5.0 migration failed at $(date -u +%FT%TZ). See migration-diagnostics.log." > migration-failure.log
+          git add migration-failure.log migration-diagnostics.log
+          git commit -m "chore: record v1.5.0 migration diagnostics" || true
           git push origin HEAD:agent/v1.5.0-platform-upgrade || true
+          exit "$status"
