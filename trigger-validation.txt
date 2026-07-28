@@ -1,1 +1,1 @@
-Retry scoped pull-request validation with strict release commit and push error handling.
+Generate the validated v1.5.0 release artifact for atomic handoff to the Draft PR branch.
