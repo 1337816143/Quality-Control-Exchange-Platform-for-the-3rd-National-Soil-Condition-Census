@@ -1,0 +1,84 @@
+name: One-time v1.5.0 finalization
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: one-time-v1.5.0-finalization
+  cancel-in-progress: true
+
+jobs:
+  finalize:
+    if: github.event.issue.title == '[automation] Finalize v1.5.0 after XLSX fix'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/v1.5.0-platform-upgrade
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate, validate and test v1.5.0
+        shell: bash
+        run: |
+          set +e
+          rm -f migration-failure.log migration-diagnostics.log
+          {
+            set -euo pipefail
+            python -m pip install --disable-pip-version-check pillow
+            python scripts/bootstrap-logo.py
+            node scripts/migrate-v1.5.0.mjs
+            python scripts/post-migrate-v1.5.0.py
+            python scripts/fix-generated-tests-v1.5.0.py
+            python scripts/fix-xlsx-v1.5.0.py
+            find src scripts -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
+            node --check upload-config.js
+            npm install --package-lock-only --ignore-scripts
+            npm ci
+            npm audit --audit-level=high
+            npm run validate
+            npm run build
+            npx playwright install --with-deps chromium
+            npm run test:e2e -- --project=desktop
+            npm run test:e2e -- --project=tablet
+            npm run test:e2e -- --project=mobile
+          } 2>&1 | tee /tmp/migration-diagnostics.log
+          status=${PIPESTATUS[0]}
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if [ "$status" -eq 0 ]; then
+            rm -f migration-failure.log migration-diagnostics.log trigger-validation.txt
+            rm -f scripts/migrate-v1.5.0.mjs scripts/bootstrap-logo.py scripts/generate-logo.py
+            rm -f scripts/post-migrate-v1.5.0.py scripts/fix-generated-tests-v1.5.0.py scripts/fix-xlsx-v1.5.0.py
+            rm -f .github/workflows/migrate-v1.5.0.yml
+            git add -A
+            git commit -m "feat: release v1.5.0 platform upgrade"
+            git push origin HEAD:agent/v1.5.0-platform-upgrade
+            exit 0
+          fi
+
+          git reset --hard HEAD
+          cp /tmp/migration-diagnostics.log migration-diagnostics.log
+          printf '%s\n' "v1.5.0 migration failed at $(date -u +%FT%TZ). See migration-diagnostics.log." > migration-failure.log
+          git add migration-failure.log migration-diagnostics.log
+          git commit -m "chore: record v1.5.0 migration diagnostics" || true
+          git push origin HEAD:agent/v1.5.0-platform-upgrade || true
+          exit "$status"
