@@ -5,6 +5,8 @@ on:
     types: [opened, reopened]
   pull_request:
     types: [reopened]
+  schedule:
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: write
@@ -13,7 +15,7 @@ permissions:
 
 jobs:
   migrate:
-    if: github.event.issue.title == '[automation] Generate v1.5.0 final mobile-selectors' || github.event.pull_request.title == 'feat: v1.5.0 platform upgrade'
+    if: github.event_name == 'schedule' || github.event.issue.title == '[automation] Generate v1.5.0 final mobile-selectors' || github.event.pull_request.title == 'feat: v1.5.0 platform upgrade'
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
@@ -76,7 +78,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           if [ "$status" -eq 0 ]; then
-            rm -f migration-failure.log migration-diagnostics.log
+            rm -f migration-failure.log migration-diagnostics.log trigger-validation.txt
             rm -f scripts/migrate-v1.5.0.mjs scripts/bootstrap-logo.py scripts/generate-logo.py scripts/post-migrate-v1.5.0.py scripts/fix-generated-tests-v1.5.0.py
             rm -f .github/workflows/migrate-v1.5.0.yml
             git add -A
