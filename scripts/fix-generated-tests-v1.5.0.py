@@ -13,42 +13,72 @@ spec.write_text(r'''import { test, expect } from '@playwright/test';
 
 const EXISTING_KEY = '沧州市_易景科技（天津）股份有限公司_孟村回族自治县';
 const EXISTING_FILE = EXISTING_KEY + '_整改答复_20260728090000.pdf';
-const existingRecords = {
-  [EXISTING_KEY]: {
-    key: EXISTING_KEY,
-    file: EXISTING_FILE,
-    time: '20260728090000',
-    extension: 'pdf',
-    size: 128,
-    sha256: 'a'.repeat(64),
-    updatedAt: '2026-07-28T01:00:00.000Z'
-  }
+const initialRecord = {
+  key: EXISTING_KEY,
+  file: EXISTING_FILE,
+  time: '20260728090000',
+  extension: 'pdf',
+  size: 128,
+  sha256: 'a'.repeat(64),
+  updatedAt: '2026-07-28T01:00:00.000Z'
 };
 
+function decodeIndexContent(content) {
+  return JSON.parse(Buffer.from(String(content || ''), 'base64').toString('utf8'));
+}
+
 async function mockGithub(page) {
-  await page.route('**/raw.githubusercontent.com/1337816143/soil-type-mapping-inventory/main/replies/index.json**', (route) =>
-    route.fulfill({ json: { version: 1, records: existingRecords } })
-  );
-  await page.route('**/api.github.com/repos/1337816143/soil-type-mapping-inventory/contents/replies**', async (route) => {
-    const request = route.request();
-    const url = request.url();
-    const method = request.method();
-    if (method === 'GET' && url.includes('/contents/replies/index.json')) {
-      const content = Buffer.from(JSON.stringify({ version: 1, records: existingRecords }), 'utf8').toString('base64');
-      return route.fulfill({ json: { sha: 'index-sha', content } });
-    }
-    if (method === 'GET') {
-      return route.fulfill({ json: [{ type: 'file', name: EXISTING_FILE, sha: 'reply-sha', size: 128 }] });
-    }
-    return route.fulfill({ status: method === 'PUT' ? 201 : 200, json: { content: { sha: 'test' }, commit: { sha: 'commit' } } });
-  });
+  const state = {
+    records: { [EXISTING_KEY]: { ...initialRecord } },
+    files: [{ type: 'file', name: EXISTING_FILE, sha: 'reply-sha', size: 128 }]
+  };
+
   await page.route('**/api.github.com/repos/1337816143/soil-type-mapping-inventory/**', (route) =>
     route.fulfill({ status: 200, json: {} })
   );
+
+  await page.route('**/raw.githubusercontent.com/1337816143/soil-type-mapping-inventory/main/replies/index.json**', (route) =>
+    route.fulfill({ json: { version: 1, records: state.records } })
+  );
+
+  await page.route('**/api.github.com/repos/1337816143/soil-type-mapping-inventory/contents/replies**', async (route) => {
+    const request = route.request();
+    const url = new URL(request.url());
+    const method = request.method();
+    const encodedName = url.pathname.split('/').pop() || '';
+    const name = decodeURIComponent(encodedName);
+    const isIndex = url.pathname.endsWith('/replies/index.json');
+
+    if (method === 'GET' && isIndex) {
+      const data = { version: 1, records: state.records };
+      return route.fulfill({ json: { sha: 'index-sha', content: Buffer.from(JSON.stringify(data), 'utf8').toString('base64') } });
+    }
+    if (method === 'GET') return route.fulfill({ json: state.files });
+
+    const body = request.postDataJSON() || {};
+    if (method === 'PUT' && isIndex) {
+      state.records = { ...(decodeIndexContent(body.content).records || {}) };
+      return route.fulfill({ status: 200, json: { content: { sha: 'index-next' }, commit: { sha: 'commit-index' } } });
+    }
+    if (method === 'PUT') {
+      state.files = state.files.filter((file) => file.name !== name);
+      state.files.push({ type: 'file', name, sha: 'file-' + state.files.length, size: 256 });
+      return route.fulfill({ status: 201, json: { content: { sha: 'file-next' }, commit: { sha: 'commit-file' } } });
+    }
+    if (method === 'DELETE') {
+      state.files = state.files.filter((file) => file.name !== name);
+      return route.fulfill({ status: 200, json: { commit: { sha: 'commit-delete' } } });
+    }
+    return route.fulfill({ status: 405, json: { message: 'unexpected mock request' } });
+  });
+
+  return state;
 }
 
 async function visibleSurface(page, isMobile) {
-  const surface = isMobile ? page.locator('#resultsRoot .mobile-cards').first() : page.locator('#resultsRoot .desktop-table').first();
+  const surface = isMobile
+    ? page.locator('#resultsRoot .mobile-cards').first()
+    : page.locator('#resultsRoot .desktop-table').first();
   await expect(surface).toBeVisible();
   return surface;
 }
@@ -136,7 +166,7 @@ test('上传、替换和删除模拟流程', async ({ page }) => {
 
   page.once('dialog', (dialog) => dialog.accept());
   await page.locator('.delete-reply:visible').first().click();
-  await expect(page.locator('#deletePreview')).toContainText(EXISTING_FILE);
+  await expect(page.locator('#deletePreview')).toContainText('整改答复');
   await page.locator('#confirmDelete').click();
   await expect(page.locator('#toast')).toContainText('已删除');
 });
@@ -232,7 +262,9 @@ function download(blob, name) {
   const link = document.createElement('a');
   link.href = url;
   link.download = name;
+  document.body.appendChild(link);
   link.click();
+  link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
@@ -302,4 +334,4 @@ for workflow_path in [Path('.github/workflows/ci.yml'), Path('.github/workflows/
     workflow = workflow.replace('      - run: npm ci\n      - run: npm run validate', '      - run: npm ci\n      - run: npm audit --audit-level=high\n      - run: npm run validate')
     workflow_path.write_text(workflow, encoding='utf-8')
 
-print('Applied robust cross-device E2E tests, safe XLSX export, replacement cleanup, delete verification and audit gates.')
+print('Applied stateful cross-device E2E tests, safe XLSX export, replacement cleanup, delete verification and audit gates.')
