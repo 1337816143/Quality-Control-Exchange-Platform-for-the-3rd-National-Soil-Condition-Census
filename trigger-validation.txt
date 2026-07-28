@@ -1,1 +1,1 @@
-Trigger scoped pull-request validation for final v1.5.0 generation, audit, build and cross-device tests.
+Retry scoped pull-request validation with strict release commit and push error handling.
