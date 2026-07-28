@@ -43,7 +43,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Generate, validate and test v1.5.0
+      - name: Generate, validate, test and write v1.5.0
         shell: bash
         run: |
           set +e
@@ -74,20 +74,26 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           if [ "$status" -eq 0 ]; then
-            rm -f migration-failure.log migration-diagnostics.log trigger-validation.txt
+            set -euo pipefail
+            rm -f migration-failure.log migration-diagnostics.log
             rm -f scripts/migrate-v1.5.0.mjs scripts/bootstrap-logo.py scripts/generate-logo.py
             rm -f scripts/post-migrate-v1.5.0.py scripts/fix-generated-tests-v1.5.0.py scripts/fix-xlsx-v1.5.0.py
             rm -f .github/workflows/migrate-v1.5.0.yml
             git add -A
+            if git diff --cached --quiet; then
+              echo 'Generated v1.5.0 produced no commit candidates.' >&2
+              exit 1
+            fi
             git commit -m "feat: release v1.5.0 platform upgrade"
-            git push origin HEAD:agent/v1.5.0-platform-upgrade
+            git push origin HEAD:refs/heads/agent/v1.5.0-platform-upgrade
             exit 0
           fi
 
+          set +e
           git reset --hard HEAD
           cp /tmp/migration-diagnostics.log migration-diagnostics.log
           printf '%s\n' "v1.5.0 migration failed at $(date -u +%FT%TZ). See migration-diagnostics.log." > migration-failure.log
           git add migration-failure.log migration-diagnostics.log
-          git commit -m "chore: record v1.5.0 migration diagnostics" || true
-          git push origin HEAD:agent/v1.5.0-platform-upgrade || true
+          git commit -m "chore: record v1.5.0 migration diagnostics"
+          git push origin HEAD:refs/heads/agent/v1.5.0-platform-upgrade
           exit "$status"
