@@ -3,17 +3,14 @@ name: One-time v1.5.0 migration
 on:
   issues:
     types: [opened, reopened]
-  pull_request:
-    types: [opened, reopened]
 
 permissions:
   contents: write
   issues: write
-  pull-requests: write
 
 jobs:
   migrate:
-    if: github.event.issue.title == '[automation] Generate v1.5.0' || github.event.pull_request.title == 'feat: v1.5.0 platform upgrade'
+    if: github.event.issue.title == '[automation] Generate v1.5.0 final'
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
@@ -46,6 +43,13 @@ jobs:
             python scripts/bootstrap-logo.py
             echo '== Generate v1.5.0 structure =='
             node scripts/migrate-v1.5.0.mjs
+            echo '== Apply post-migration fixes =='
+            python scripts/post-migrate-v1.5.0.py
+            echo '== Apply generated test fixes =='
+            python scripts/fix-generated-tests-v1.5.0.py
+            echo '== Check generated JavaScript syntax =='
+            find src scripts -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
+            node --check upload-config.js
             echo '== Generate dependency lockfile =='
             npm install --package-lock-only --ignore-scripts
             echo '== Install dependencies =='
@@ -58,6 +62,8 @@ jobs:
             npx playwright install --with-deps chromium
             echo '== Desktop end-to-end tests =='
             npm run test:e2e -- --project=desktop
+            echo '== Tablet end-to-end tests =='
+            npm run test:e2e -- --project=tablet
             echo '== Mobile end-to-end tests =='
             npm run test:e2e -- --project=mobile
           } 2>&1 | tee /tmp/migration-diagnostics.log
@@ -68,6 +74,8 @@ jobs:
 
           if [ "$status" -eq 0 ]; then
             rm -f migration-failure.log migration-diagnostics.log
+            rm -f scripts/migrate-v1.5.0.mjs scripts/bootstrap-logo.py scripts/generate-logo.py scripts/post-migrate-v1.5.0.py scripts/fix-generated-tests-v1.5.0.py
+            rm -f .github/workflows/migrate-v1.5.0.yml
             git add -A
             git commit -m "feat: release v1.5.0 platform upgrade"
             git push origin HEAD:agent/v1.5.0-platform-upgrade
