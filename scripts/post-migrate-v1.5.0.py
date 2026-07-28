@@ -133,4 +133,9 @@ text = admin_github.read_text(encoding='utf-8')
 text = text.replace("replace(/\n/g,'')", r"replace(/\n/g,'')")
 admin_github.write_text(text, encoding='utf-8')
 
-print('Applied stable validator, exporter, admin newline handling and optional reference archive fallback.')
+runtime_validation = Path('src/data/validate.js')
+text = runtime_validation.read_text(encoding='utf-8')
+text = text.replace(".replace(/s+/g, '')", ".replace(/\\s+/g, '')")
+runtime_validation.write_text(text, encoding='utf-8')
+
+print('Applied stable validator, exporter, admin newline handling, whitespace normalization and optional reference archive fallback.')
