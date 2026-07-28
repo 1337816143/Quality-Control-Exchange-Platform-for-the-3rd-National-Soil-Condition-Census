@@ -49,7 +49,7 @@ jobs:
             node scripts/migrate-v1.5.0.mjs
             echo '== Apply post-migration fixes =='
             python scripts/post-migrate-v1.5.0.py
-            echo '== Apply generated test fixes =='
+            echo '== Apply generated reliability fixes =='
             python scripts/fix-generated-tests-v1.5.0.py
             echo '== Check generated JavaScript syntax =='
             find src scripts -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
@@ -58,6 +58,8 @@ jobs:
             npm install --package-lock-only --ignore-scripts
             echo '== Install dependencies =='
             npm ci
+            echo '== Audit dependencies =='
+            npm audit --audit-level=high
             echo '== Validate data and logo =='
             npm run validate
             echo '== Build static site =='
