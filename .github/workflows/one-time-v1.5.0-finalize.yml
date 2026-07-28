@@ -6,6 +6,10 @@ on:
   push:
     branches: [admin-import-and-reference-files]
     paths: [v1.5.0-finalize.trigger]
+  pull_request:
+    branches: [admin-import-and-reference-files]
+    types: [synchronize]
+    paths: [trigger-validation.txt]
   schedule:
     - cron: '*/5 * * * *'
 
@@ -19,7 +23,7 @@ concurrency:
 
 jobs:
   finalize:
-    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.issue.title == '[automation] Finalize v1.5.0 after XLSX fix'
+    if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'schedule' || github.event.issue.title == '[automation] Finalize v1.5.0 after XLSX fix'
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
