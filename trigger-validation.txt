@@ -1,1 +1,1 @@
-Trigger v1.5.0 validation after device-aware mobile selector fixes.
+Trigger isolated v1.5.0 validation after removing the competing scheduled workflow.
