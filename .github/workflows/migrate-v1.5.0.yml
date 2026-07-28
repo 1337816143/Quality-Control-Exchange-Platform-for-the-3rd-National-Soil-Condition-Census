@@ -43,6 +43,14 @@ jobs:
             python scripts/bootstrap-logo.py
             echo '== Generate v1.5.0 structure =='
             node scripts/migrate-v1.5.0.mjs
+            echo '== Repair generated path separator regex =='
+            python - <<'PY'
+          from pathlib import Path
+          target = Path('scripts/validate-data.mjs')
+          text = target.read_text(encoding='utf-8')
+          text = text.replace("replace(/\\/g,'/')", "replace(/\\\\/g,'/')")
+          target.write_text(text, encoding='utf-8')
+          PY
             echo '== Generate dependency lockfile =='
             npm install --package-lock-only --ignore-scripts
             echo '== Install dependencies =='
