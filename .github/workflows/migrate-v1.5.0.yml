@@ -45,6 +45,8 @@ jobs:
             node scripts/migrate-v1.5.0.mjs
             echo '== Apply post-migration fixes =='
             python scripts/post-migrate-v1.5.0.py
+            echo '== Apply generated test fixes =='
+            python scripts/fix-generated-tests-v1.5.0.py
             echo '== Check generated JavaScript syntax =='
             find src scripts -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
             node --check upload-config.js
@@ -72,7 +74,7 @@ jobs:
 
           if [ "$status" -eq 0 ]; then
             rm -f migration-failure.log migration-diagnostics.log
-            rm -f scripts/migrate-v1.5.0.mjs scripts/bootstrap-logo.py scripts/generate-logo.py scripts/post-migrate-v1.5.0.py
+            rm -f scripts/migrate-v1.5.0.mjs scripts/bootstrap-logo.py scripts/generate-logo.py scripts/post-migrate-v1.5.0.py scripts/fix-generated-tests-v1.5.0.py
             rm -f .github/workflows/migrate-v1.5.0.yml
             git add -A
             git commit -m "feat: release v1.5.0 platform upgrade"
