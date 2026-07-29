@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, admin-import-and-reference-files]
   workflow_dispatch:
 
 permissions:
@@ -15,63 +15,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    timeout-minutes: 30
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout triggering commit
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          fetch-depth: 1
-          sparse-checkout: |
-            index.html
-            upload-config.js
-            page-enhancements.js
-            page-enhancements-core.js
-            reference-library.js
-            assets
-            data
-            replies
-          sparse-checkout-cone-mode: false
-
-      - name: Validate deploy files
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f index.html
-          test -f upload-config.js
-          test -f page-enhancements.js
-          test -f page-enhancements-core.js
-          test -f reference-library.js
-          test -f assets/soil-survey-logo.svg
-          grep -q 'calculateDashboardStats(dataKey)' index.html
-          grep -q 'upload-config.js' index.html
-          grep -q 'SOIL_UPLOAD_API_URL' upload-config.js
-          grep -q 'page-enhancements.js' upload-config.js
-          grep -q 'page-enhancements-core.js' page-enhancements.js
-          grep -q 'reference-library.js' page-enhancements.js
-          grep -q './assets/soil-survey-logo.svg' page-enhancements-core.js
-          grep -q 'missing-layout' page-enhancements-core.js
-          grep -q '参考文件' reference-library.js
-          grep -q 'third-soil-survey' reference-library.js
-          if grep -q '<span>中国农业大学</span>' page-enhancements-core.js; then
-            echo '检测到重复的中国农业大学文字，停止部署。'
-            exit 1
-          fi
-          echo '部署文件校验通过。'
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run validate
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
+          path: dist
+      - id: deployment
         uses: actions/deploy-pages@v4
