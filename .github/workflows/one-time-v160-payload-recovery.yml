@@ -50,8 +50,10 @@ jobs:
           shas=[x.strip() for x in Path('/tmp/v160-shas.txt').read_text().splitlines() if x.strip()]
           parts=[(Path('/tmp/v160-blobs')/x).read_bytes() for x in shas]
           encoded=b''.join(parts)
-          padded=encoded+b'='*((-len(encoded))%4)
-          damaged=base64.b64decode(padded,validate=True)
+          if not encoded.endswith(b'=='):
+              raise SystemExit('Expected final Base64 padding was not found')
+          length_repaired=encoded[:-2]+b'A'+encoded[-2:]
+          damaged=base64.b64decode(length_repaired,validate=True)
           decoder=lzma.LZMADecompressor()
           produced=0
           error_at=None
