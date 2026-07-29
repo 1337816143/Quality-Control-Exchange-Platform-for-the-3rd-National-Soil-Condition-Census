@@ -18,11 +18,9 @@ jobs:
         with:
           ref: agent/v1.6.0-legacy-parity
           fetch-depth: 1
-
-      - name: Recover and verify payload
+      - name: Recover valid XZ stream
         env:
           GH_TOKEN: ${{ github.token }}
-          EXPECTED_SHA256: 99ece19f01740d8662fe762593cd0141dd4ae3f45c82705d2c30de11a37de91c
         shell: bash
         run: |
           set -euo pipefail
@@ -46,62 +44,31 @@ jobs:
               "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/$sha" \
               | jq -r '.content' | tr -d '\n' | base64 --decode > "/tmp/v160-blobs/$sha"
           done < /tmp/v160-shas.txt
-
           python - <<'PY'
           from pathlib import Path
-          import base64
-          import hashlib
-          import io
-          import json
-          import lzma
-          import os
-          import zipfile
-
-          shas = [line.strip() for line in Path('/tmp/v160-shas.txt').read_text().splitlines() if line.strip()]
-          parts = [(Path('/tmp/v160-blobs') / sha).read_bytes() for sha in shas]
-          alphabet = b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-          expected = os.environ['EXPECTED_SHA256']
-          matches = []
-
-          for boundary in range(len(parts) - 1):
-              prefix = b''.join(parts[:boundary + 1])
-              suffix = b''.join(parts[boundary + 1:])
+          import base64, hashlib, json, lzma
+          shas=[x.strip() for x in Path('/tmp/v160-shas.txt').read_text().splitlines() if x.strip()]
+          parts=[(Path('/tmp/v160-blobs')/x).read_bytes() for x in shas]
+          alphabet=b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+          successes=[]
+          for boundary in range(len(parts)-1):
+              prefix=b''.join(parts[:boundary+1]); suffix=b''.join(parts[boundary+1:])
               for char in alphabet:
-                  encoded = prefix + bytes([char]) + suffix
                   try:
-                      compressed = base64.b64decode(encoded, validate=True)
-                      payload = lzma.decompress(compressed)
+                      compressed=base64.b64decode(prefix+bytes([char])+suffix, validate=True)
+                      payload=lzma.decompress(compressed)
                   except Exception:
                       continue
-                  digest = hashlib.sha256(payload).hexdigest()
-                  if digest != expected:
-                      continue
-                  if not zipfile.is_zipfile(io.BytesIO(payload)):
-                      continue
-                  with zipfile.ZipFile(io.BytesIO(payload)) as archive:
-                      bad_entry = archive.testzip()
-                      entries = archive.infolist()
-                  if bad_entry is None and len(entries) == 36:
-                      matches.append({
-                          'boundary': boundary + 1,
-                          'character': chr(char),
-                          'sha256': digest,
-                          'bytes': len(payload),
-                          'entries': len(entries),
-                      })
-                      Path('/tmp/v160-payload.zip').write_bytes(payload)
-
-          if len(matches) != 1:
-              raise SystemExit(f'Expected exactly one recovery match, found {len(matches)}: {matches}')
-          print('RECOVERY=' + json.dumps(matches[0], ensure_ascii=False))
+                  item={'boundary':boundary+1,'character':chr(char),'compressedBytes':len(compressed),'payloadBytes':len(payload),'payloadSha256':hashlib.sha256(payload).hexdigest(),'magicHex':payload[:32].hex(),'magicText':repr(payload[:80])}
+                  successes.append(item)
+                  Path(f'/tmp/recovered-{boundary+1}-{chr(char)}.bin').write_bytes(payload)
+          print('XZ_SUCCESSES='+json.dumps(successes,ensure_ascii=False))
+          if not successes:
+              raise SystemExit('No valid boundary recovery; missing character is internal to a segment')
           PY
-
-          echo "$EXPECTED_SHA256  /tmp/v160-payload.zip" | sha256sum --check
-          unzip -t /tmp/v160-payload.zip
-
       - uses: actions/upload-artifact@v4
         with:
-          name: v1.6.0-recovered-payload
-          path: /tmp/v160-payload.zip
+          name: v1.6.0-xz-recovery-candidates
+          path: /tmp/recovered-*.bin
           if-no-files-found: error
           retention-days: 2
