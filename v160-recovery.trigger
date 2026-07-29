@@ -1,1 +1,1 @@
-Recover the missing Base64 character near the internal 8000-character junction of staged XZ segment 7 and require a unique CRC-valid stream.
+Decode the damaged Base64/XZ stream incrementally and report the first XZ error offset mapped into staged segment 7.
