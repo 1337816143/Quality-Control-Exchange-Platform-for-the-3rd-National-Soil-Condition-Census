@@ -18,7 +18,8 @@ jobs:
         with:
           ref: agent/v1.6.0-legacy-parity
           fetch-depth: 1
-      - name: Inspect and reconstruct staged Git blobs
+
+      - name: Recover and verify payload
         env:
           GH_TOKEN: ${{ github.token }}
           EXPECTED_SHA256: 99ece19f01740d8662fe762593cd0141dd4ae3f45c82705d2c30de11a37de91c
@@ -36,13 +37,6 @@ jobs:
           bea03407e60637c33d894ddc0025d6ec3d4904c8
           7080a05cb02b35992adfc0ba474b71dd6c1370a5
           2b12ede8c78148669c850fd98bfec96630d5cc67
-          93ad2329e6ad07297d43e523cb0cce040e68b630
-          b97fa3b959d44a4f8418f71a06fad1765af384df
-          68499f783e1456c5b37bd736107c3685a388dc4f
-          ce5c6e0aaed219955c5322e13814dd9f847a6165
-          b3a425249b207819e63bf9a2716fd16f63b0f7b7
-          75e69bb7624c5bfc397bbae8ec3bd42eb10cff13
-          5805ea041a1de4db764f7cbb8e3dcca34647501b
           EOF
           while read -r sha; do
             curl --fail-with-body -sS \
@@ -52,63 +46,62 @@ jobs:
               "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/$sha" \
               | jq -r '.content' | tr -d '\n' | base64 --decode > "/tmp/v160-blobs/$sha"
           done < /tmp/v160-shas.txt
+
           python - <<'PY'
           from pathlib import Path
-          import base64, hashlib, itertools, json, os, zipfile, io
+          import base64
+          import hashlib
+          import io
+          import json
+          import lzma
+          import os
+          import zipfile
 
+          shas = [line.strip() for line in Path('/tmp/v160-shas.txt').read_text().splitlines() if line.strip()]
+          parts = [(Path('/tmp/v160-blobs') / sha).read_bytes() for sha in shas]
+          alphabet = b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
           expected = os.environ['EXPECTED_SHA256']
-          root = Path('/tmp/v160-blobs')
-          order = [line.strip() for line in Path('/tmp/v160-shas.txt').read_text().splitlines() if line.strip()]
-          pieces = {sha: (root / sha).read_bytes() for sha in order}
-          print('=== BLOB INVENTORY ===')
-          for i, sha in enumerate(order, 1):
-              data = pieces[sha]
-              print(f'{i:02d} {sha} bytes={len(data)} first={data[:20]!r} last={data[-20:]!r}')
+          matches = []
 
-          branch_files = []
-          for path in sorted(Path('.v160').glob('payload.part*')) if Path('.v160').exists() else []:
-              data = path.read_bytes()
-              key = 'branch:' + path.name
-              pieces[key] = data
-              branch_files.append(key)
-              print(f'BR {key} bytes={len(data)} first={data[:20]!r} last={data[-20:]!r}')
+          for boundary in range(len(parts) - 1):
+              prefix = b''.join(parts[:boundary + 1])
+              suffix = b''.join(parts[boundary + 1:])
+              for char in alphabet:
+                  encoded = prefix + bytes([char]) + suffix
+                  try:
+                      compressed = base64.b64decode(encoded, validate=True)
+                      payload = lzma.decompress(compressed)
+                  except Exception:
+                      continue
+                  digest = hashlib.sha256(payload).hexdigest()
+                  if digest != expected:
+                      continue
+                  if not zipfile.is_zipfile(io.BytesIO(payload)):
+                      continue
+                  with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+                      bad_entry = archive.testzip()
+                      entries = archive.infolist()
+                  if bad_entry is None and len(entries) == 36:
+                      matches.append({
+                          'boundary': boundary + 1,
+                          'character': chr(char),
+                          'sha256': digest,
+                          'bytes': len(payload),
+                          'entries': len(entries),
+                      })
+                      Path('/tmp/v160-payload.zip').write_bytes(payload)
 
-          def test(name, keys):
-              text = b''.join(pieces[key] for key in keys)
-              result = {'name': name, 'keys': keys, 'textBytes': len(text)}
-              try:
-                  raw = base64.b64decode(text, validate=True)
-                  result['decodedBytes'] = len(raw)
-                  result['sha256'] = hashlib.sha256(raw).hexdigest()
-                  result['zip'] = zipfile.is_zipfile(io.BytesIO(raw))
-                  if result['zip']:
-                      with zipfile.ZipFile(io.BytesIO(raw)) as archive:
-                          result['entries'] = len(archive.infolist())
-                          result['badEntry'] = archive.testzip()
-              except Exception as exc:
-                  result['error'] = str(exc)
-              print(json.dumps(result, ensure_ascii=False))
-              return result.get('sha256') == expected and result.get('zip') and result.get('badEntry') is None
-
-          candidates = [
-              ('first-10', order[:10]),
-              ('first-9-plus-11', order[:9] + [order[10]]),
-              ('first-9-plus-12', order[:9] + [order[11]]),
-              ('first-9-plus-13', order[:9] + [order[12]]),
-              ('first-6-plus-7-10', order[:10]),
-              ('all-created-order', order),
-              ('first-7-plus-branch', order[:7] + branch_files),
-              ('first-8-plus-branch', order[:8] + branch_files),
-              ('first-9-plus-branch', order[:9] + branch_files),
-          ]
-          matched = None
-          for name, keys in candidates:
-              if test(name, keys):
-                  matched = (name, keys)
-                  break
-          if matched:
-              Path('/tmp/v160-recovery.json').write_text(json.dumps({'matched': matched[0], 'keys': matched[1]}, indent=2), encoding='utf-8')
-              print('RECOVERY_MATCH=' + matched[0])
-          else:
-              print('RECOVERY_MATCH=none')
+          if len(matches) != 1:
+              raise SystemExit(f'Expected exactly one recovery match, found {len(matches)}: {matches}')
+          print('RECOVERY=' + json.dumps(matches[0], ensure_ascii=False))
           PY
+
+          echo "$EXPECTED_SHA256  /tmp/v160-payload.zip" | sha256sum --check
+          unzip -t /tmp/v160-payload.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v1.6.0-recovered-payload
+          path: /tmp/v160-payload.zip
+          if-no-files-found: error
+          retention-days: 2
