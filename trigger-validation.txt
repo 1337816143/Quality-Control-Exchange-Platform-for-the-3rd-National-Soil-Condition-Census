@@ -1,1 +1,1 @@
-Rerun hardened v1.5.0 with the committed source regression gate available during validation.
+Rerun hardened v1.5.0 with byte-exact restoration for admin, results and upload UI source modules.
