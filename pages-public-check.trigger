@@ -1,1 +1,1 @@
-Inspect deploy.yml run history, Pages settings response and the current public v1.5.0 page.
+Inspect the branch-based Pages publish run and verify the public v1.5.0 page after dist was pushed to main.
