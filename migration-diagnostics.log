@@ -1,0 +1,19 @@
+== Install Pillow ==
+Collecting pillow
+  Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 17.9 MB/s  0:00:00
+Installing collected packages: pillow
+Successfully installed pillow-12.3.0
+== Generate transparent PNG logo ==
+Traceback (most recent call last):
+  File "/home/runner/work/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/scripts/bootstrap-logo.py", line 10, in <module>
+    svg = svg_path.read_text(encoding="utf-8")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/Quality-Control-Exchange-Platform-for-the-3rd-National-Soil-Condition-Census/assets/soil-survey-logo.svg'
