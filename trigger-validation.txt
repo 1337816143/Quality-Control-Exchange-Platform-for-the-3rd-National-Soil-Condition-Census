@@ -1,1 +1,1 @@
-Rerun hardened v1.5.0 using the isolated byte-exact admin source restoration before validation.
+Rerun hardened v1.5.0 with the committed source regression gate available during validation.
