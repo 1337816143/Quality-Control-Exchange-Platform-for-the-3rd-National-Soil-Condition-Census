@@ -1,5 +1,0 @@
-.dev.vars
-.env
-.secrets.json
-node_modules/
-.wrangler/
