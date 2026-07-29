@@ -1,1 +1,1 @@
-Run hardened v1.5.0 generation, audit, cross-device tests and non-workflow release commit.
+Rerun hardened v1.5.0 after normalizing the generated admin deletion verification syntax.
