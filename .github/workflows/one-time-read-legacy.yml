@@ -1,12 +1,12 @@
 name: One-time legacy snapshot
 
 on:
-  push:
-    branches: [admin-import-and-reference-files]
-    paths: [legacy-snapshot.trigger]
+  issues:
+    types: [opened]
 
 permissions:
   contents: read
+  issues: read
 
 concurrency:
   group: one-time-legacy-snapshot
@@ -14,6 +14,7 @@ concurrency:
 
 jobs:
   snapshot:
+    if: github.event.issue.title == '[automation] Read legacy snapshot'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -41,9 +42,6 @@ jobs:
               'User-Agent': 'legacy-read-only-snapshot',
               'X-GitHub-Api-Version': '2022-11-28',
           }
-          token = os.environ.get('GITHUB_TOKEN', '')
-          if token:
-              headers['Authorization'] = f'Bearer {token}'
 
           tree_url = f'https://api.github.com/repos/{repo}/git/trees/{urllib.parse.quote(ref, safe="")}?recursive=1'
           req = urllib.request.Request(tree_url, headers=headers)
