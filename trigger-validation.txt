@@ -1,1 +1,1 @@
-Rerun hardened v1.5.0 with byte-exact restoration for admin, results and upload UI source modules.
+Finalize the already validated v1.5.0 release with explicit staging of project files only.
