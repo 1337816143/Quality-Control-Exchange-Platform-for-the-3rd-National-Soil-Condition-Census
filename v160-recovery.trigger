@@ -1,1 +1,1 @@
-Enumerate boundary candidates and report every XZ stream that passes decompression and CRC, regardless of its inner container type.
+Recover the missing Base64 character near the internal 8000-character junction of staged XZ segment 7 and require a unique CRC-valid stream.
