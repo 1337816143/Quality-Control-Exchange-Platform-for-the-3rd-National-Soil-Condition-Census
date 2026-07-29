@@ -5,9 +5,9 @@
   var REPO = 'soil-type-mapping-inventory';
   var BRANCH = 'main';
   var ROOT = 'reference-files/third-soil-survey';
-  var RAW_BASE = 'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + '/';
-  var MANIFEST_URL = RAW_BASE + ROOT + '/manifest.json';
-  var ARCHIVE_META_URL = RAW_BASE + ROOT + '/archive.json';
+  var RAW_BASE = './';
+  var MANIFEST_URL = ROOT + '/manifest.json';
+  var ARCHIVE_META_URL = ROOT + '/archive.json';
   var JSZIP_URL = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
   var CHUNK_SIZE = 8 * 1024 * 1024;
   var EXPECTED_ARCHIVE_SIZE = 310522366;
@@ -476,6 +476,5 @@
     installReferenceTab();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
-  else install();
+  window.SoilReferenceLibrary = { init: installReferenceTab, render: renderReferenceLibrary };
 })();
