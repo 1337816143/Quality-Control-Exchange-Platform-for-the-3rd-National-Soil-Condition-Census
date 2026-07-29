@@ -1,1 +1,1 @@
-Repair only the final Base64 length, then incrementally locate the first XZ decoder error and map it to segment 7.
+Export all staged Git payload objects and branch fragments as a downloadable Artifact for local reconstruction.
