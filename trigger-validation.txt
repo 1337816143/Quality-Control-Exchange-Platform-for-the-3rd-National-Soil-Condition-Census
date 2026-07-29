@@ -1,1 +1,1 @@
-Rerun hardened v1.5.0 after normalizing the generated admin deletion verification syntax.
+Rerun hardened v1.5.0 with tolerant UTF-8 normalization of the generated admin source.
