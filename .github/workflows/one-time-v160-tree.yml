@@ -1,0 +1,25 @@
+name: One-time v1.6.0 tree inspection
+
+on:
+  pull_request:
+    branches: [admin-import-and-reference-files]
+    paths: [v160-tree.trigger]
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/v1.6.0-legacy-parity
+          fetch-depth: 1
+      - name: Print branch commit and tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "BRANCH_COMMIT=$(git rev-parse HEAD)"
+          echo "BRANCH_TREE=$(git rev-parse HEAD^{tree})"
