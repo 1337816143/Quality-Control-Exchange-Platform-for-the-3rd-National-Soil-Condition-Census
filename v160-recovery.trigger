@@ -1,1 +1,1 @@
-Decode the damaged Base64/XZ stream incrementally and report the first XZ error offset mapped into staged segment 7.
+Repair only the final Base64 length, then incrementally locate the first XZ decoder error and map it to segment 7.
