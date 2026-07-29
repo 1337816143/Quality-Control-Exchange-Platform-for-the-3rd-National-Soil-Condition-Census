@@ -45,6 +45,7 @@ jobs:
           python scripts/fix-generated-tests-v1.5.0.py
           python scripts/fix-xlsx-v1.5.0.py
           python scripts/post-final-hardening-v1.5.0.py
+          python scripts/fix-final-syntax-v1.5.0.py
           find src scripts tests -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
           node --check upload-config.js
           npm install --package-lock-only --ignore-scripts
@@ -65,7 +66,7 @@ jobs:
           rm -f migration-failure.log migration-diagnostics.log release-deletions.txt
           rm -f scripts/migrate-v1.5.0.mjs scripts/bootstrap-logo.py scripts/generate-logo.py
           rm -f scripts/post-migrate-v1.5.0.py scripts/fix-generated-tests-v1.5.0.py scripts/fix-xlsx-v1.5.0.py
-          rm -f scripts/post-final-hardening-v1.5.0.py
+          rm -f scripts/post-final-hardening-v1.5.0.py scripts/fix-final-syntax-v1.5.0.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A -- . ':(exclude).github/workflows/**' ':(exclude)trigger-validation.txt'
