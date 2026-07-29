@@ -18,7 +18,7 @@ jobs:
         with:
           ref: agent/v1.6.0-legacy-parity
           fetch-depth: 1
-      - name: Recover valid XZ stream
+      - name: Recover XZ stream at the 8000-character junction
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -50,25 +50,30 @@ jobs:
           shas=[x.strip() for x in Path('/tmp/v160-shas.txt').read_text().splitlines() if x.strip()]
           parts=[(Path('/tmp/v160-blobs')/x).read_bytes() for x in shas]
           alphabet=b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+          seventh=parts[6]
+          positions=range(7996,8005)
           successes=[]
-          for boundary in range(len(parts)-1):
-              prefix=b''.join(parts[:boundary+1]); suffix=b''.join(parts[boundary+1:])
+          for position in positions:
               for char in alphabet:
+                  repaired=seventh[:position]+bytes([char])+seventh[position:]
+                  encoded=b''.join(parts[:6]+[repaired]+parts[7:])
                   try:
-                      compressed=base64.b64decode(prefix+bytes([char])+suffix, validate=True)
+                      compressed=base64.b64decode(encoded,validate=True)
                       payload=lzma.decompress(compressed)
                   except Exception:
                       continue
-                  item={'boundary':boundary+1,'character':chr(char),'compressedBytes':len(compressed),'payloadBytes':len(payload),'payloadSha256':hashlib.sha256(payload).hexdigest(),'magicHex':payload[:32].hex(),'magicText':repr(payload[:80])}
+                  item={'position':position,'character':chr(char),'compressedBytes':len(compressed),'payloadBytes':len(payload),'payloadSha256':hashlib.sha256(payload).hexdigest(),'magicHex':payload[:32].hex(),'magicText':repr(payload[:100])}
                   successes.append(item)
-                  Path(f'/tmp/recovered-{boundary+1}-{chr(char)}.bin').write_bytes(payload)
+                  Path('/tmp/v160-recovered-payload.bin').write_bytes(payload)
           print('XZ_SUCCESSES='+json.dumps(successes,ensure_ascii=False))
-          if not successes:
-              raise SystemExit('No valid boundary recovery; missing character is internal to a segment')
+          if len(successes)!=1:
+              raise SystemExit(f'Expected one valid repair, found {len(successes)}')
           PY
+          file /tmp/v160-recovered-payload.bin
+          sha256sum /tmp/v160-recovered-payload.bin
       - uses: actions/upload-artifact@v4
         with:
-          name: v1.6.0-xz-recovery-candidates
-          path: /tmp/recovered-*.bin
+          name: v1.6.0-recovered-payload
+          path: /tmp/v160-recovered-payload.bin
           if-no-files-found: error
           retention-days: 2
