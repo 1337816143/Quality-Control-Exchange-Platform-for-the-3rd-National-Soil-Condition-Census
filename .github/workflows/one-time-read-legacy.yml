@@ -1,0 +1,110 @@
+name: One-time legacy snapshot
+
+on:
+  push:
+    branches: [admin-import-and-reference-files]
+    paths: [legacy-snapshot.trigger]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: one-time-legacy-snapshot
+  cancel-in-progress: true
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read legacy repository metadata and text sources
+        env:
+          LEGACY_REPO: 1337816143/soil-type-mapping-inventory
+          LEGACY_REF: main
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p legacy-snapshot/files
+          python - <<'PY'
+          import csv
+          import json
+          import os
+          import pathlib
+          import urllib.parse
+          import urllib.request
+
+          repo = os.environ['LEGACY_REPO']
+          ref = os.environ['LEGACY_REF']
+          headers = {
+              'Accept': 'application/vnd.github+json',
+              'User-Agent': 'legacy-read-only-snapshot',
+              'X-GitHub-Api-Version': '2022-11-28',
+          }
+          token = os.environ.get('GITHUB_TOKEN', '')
+          if token:
+              headers['Authorization'] = f'Bearer {token}'
+
+          tree_url = f'https://api.github.com/repos/{repo}/git/trees/{urllib.parse.quote(ref, safe="")}?recursive=1'
+          req = urllib.request.Request(tree_url, headers=headers)
+          with urllib.request.urlopen(req, timeout=60) as response:
+              tree = json.load(response)
+
+          root = pathlib.Path('legacy-snapshot')
+          (root / 'legacy-tree.json').write_text(json.dumps(tree, ensure_ascii=False, indent=2), encoding='utf-8')
+
+          extensions = {'.html','.htm','.js','.mjs','.cjs','.json','.css','.md','.txt','.yml','.yaml','.py','.toml','.ini','.xml','.csv'}
+          always_names = {'index.html','upload-config.js','package.json','package-lock.json','README.md'}
+          selected = []
+          replies = []
+          all_blobs = []
+          for item in tree.get('tree', []):
+              if item.get('type') != 'blob':
+                  continue
+              path = item.get('path', '')
+              size = int(item.get('size') or 0)
+              record = {'path': path, 'size': size, 'sha': item.get('sha', '')}
+              all_blobs.append(record)
+              if path.startswith('replies/'):
+                  replies.append(record)
+              suffix = pathlib.PurePosixPath(path).suffix.lower()
+              if size <= 3_000_000 and (suffix in extensions or pathlib.PurePosixPath(path).name in always_names):
+                  selected.append(record)
+
+          (root / 'legacy-replies.json').write_text(json.dumps(replies, ensure_ascii=False, indent=2), encoding='utf-8')
+          with (root / 'legacy-files.csv').open('w', encoding='utf-8-sig', newline='') as handle:
+              writer = csv.DictWriter(handle, fieldnames=['path','size','sha'])
+              writer.writeheader()
+              writer.writerows(all_blobs)
+
+          for record in selected:
+              path = record['path']
+              target = root / 'files' / pathlib.PurePosixPath(path)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              encoded_path = '/'.join(urllib.parse.quote(part, safe='') for part in pathlib.PurePosixPath(path).parts)
+              raw_url = f'https://raw.githubusercontent.com/{repo}/{urllib.parse.quote(ref, safe="")}/{encoded_path}'
+              try:
+                  req = urllib.request.Request(raw_url, headers={'User-Agent': 'legacy-read-only-snapshot'})
+                  with urllib.request.urlopen(req, timeout=60) as response:
+                      target.write_bytes(response.read())
+              except Exception as exc:
+                  print(f'WARN failed to download {path}: {exc}')
+
+          summary = {
+              'repository': repo,
+              'ref': ref,
+              'tree_sha': tree.get('sha'),
+              'truncated': tree.get('truncated', False),
+              'blob_count': len(all_blobs),
+              'reply_file_count': len(replies),
+              'downloaded_text_candidates': len(selected),
+          }
+          (root / 'summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(json.dumps(summary, ensure_ascii=False, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: legacy-read-only-snapshot
+          path: legacy-snapshot
+          if-no-files-found: error
+          retention-days: 2
