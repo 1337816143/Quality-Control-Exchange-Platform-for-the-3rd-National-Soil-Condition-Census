@@ -18,7 +18,7 @@ jobs:
         with:
           ref: agent/v1.6.0-legacy-parity
           fetch-depth: 1
-      - name: Recover XZ stream at the 8000-character junction
+      - name: Locate first XZ decoding error
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -46,34 +46,35 @@ jobs:
           done < /tmp/v160-shas.txt
           python - <<'PY'
           from pathlib import Path
-          import base64, hashlib, json, lzma
+          import base64, json, lzma
           shas=[x.strip() for x in Path('/tmp/v160-shas.txt').read_text().splitlines() if x.strip()]
           parts=[(Path('/tmp/v160-blobs')/x).read_bytes() for x in shas]
-          alphabet=b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-          seventh=parts[6]
-          positions=range(7996,8005)
-          successes=[]
-          for position in positions:
-              for char in alphabet:
-                  repaired=seventh[:position]+bytes([char])+seventh[position:]
-                  encoded=b''.join(parts[:6]+[repaired]+parts[7:])
-                  try:
-                      compressed=base64.b64decode(encoded,validate=True)
-                      payload=lzma.decompress(compressed)
-                  except Exception:
-                      continue
-                  item={'position':position,'character':chr(char),'compressedBytes':len(compressed),'payloadBytes':len(payload),'payloadSha256':hashlib.sha256(payload).hexdigest(),'magicHex':payload[:32].hex(),'magicText':repr(payload[:100])}
-                  successes.append(item)
-                  Path('/tmp/v160-recovered-payload.bin').write_bytes(payload)
-          print('XZ_SUCCESSES='+json.dumps(successes,ensure_ascii=False))
-          if len(successes)!=1:
-              raise SystemExit(f'Expected one valid repair, found {len(successes)}')
+          encoded=b''.join(parts)
+          padded=encoded+b'='*((-len(encoded))%4)
+          damaged=base64.b64decode(padded,validate=True)
+          decoder=lzma.LZMADecompressor()
+          produced=0
+          error_at=None
+          error_text=''
+          for index,value in enumerate(damaged):
+              try:
+                  produced+=len(decoder.decompress(bytes([value])))
+              except lzma.LZMAError as exc:
+                  error_at=index
+                  error_text=str(exc)
+                  break
+          if error_at is None:
+              error_at=len(damaged)
+          global_b64=(error_at*4)//3
+          prefix_before_part7=sum(len(x) for x in parts[:6])
+          estimate=global_b64-prefix_before_part7
+          result={'encodedBytes':len(encoded),'decodedDamagedBytes':len(damaged),'xzErrorByte':error_at,'producedBytesBeforeError':produced,'globalBase64Estimate':global_b64,'part7PrefixBytes':prefix_before_part7,'part7PositionEstimate':estimate,'error':error_text}
+          print('XZ_OFFSET='+json.dumps(result,ensure_ascii=False))
+          Path('/tmp/v160-offset.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
           PY
-          file /tmp/v160-recovered-payload.bin
-          sha256sum /tmp/v160-recovered-payload.bin
       - uses: actions/upload-artifact@v4
         with:
-          name: v1.6.0-recovered-payload
-          path: /tmp/v160-recovered-payload.bin
+          name: v1.6.0-xz-offset
+          path: /tmp/v160-offset.json
           if-no-files-found: error
           retention-days: 2
