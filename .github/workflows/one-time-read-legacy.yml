@@ -6,7 +6,7 @@ on:
 
 permissions:
   contents: read
-  issues: read
+  issues: write
 
 concurrency:
   group: one-time-legacy-snapshot
@@ -75,6 +75,7 @@ jobs:
               writer.writeheader()
               writer.writerows(all_blobs)
 
+          downloaded = 0
           for record in selected:
               path = record['path']
               target = root / 'files' / pathlib.PurePosixPath(path)
@@ -85,6 +86,7 @@ jobs:
                   req = urllib.request.Request(raw_url, headers={'User-Agent': 'legacy-read-only-snapshot'})
                   with urllib.request.urlopen(req, timeout=60) as response:
                       target.write_bytes(response.read())
+                  downloaded += 1
               except Exception as exc:
                   print(f'WARN failed to download {path}: {exc}')
 
@@ -95,7 +97,8 @@ jobs:
               'truncated': tree.get('truncated', False),
               'blob_count': len(all_blobs),
               'reply_file_count': len(replies),
-              'downloaded_text_candidates': len(selected),
+              'text_candidate_count': len(selected),
+              'downloaded_text_count': downloaded,
           }
           (root / 'summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding='utf-8')
           print(json.dumps(summary, ensure_ascii=False, indent=2))
@@ -106,3 +109,39 @@ jobs:
           path: legacy-snapshot
           if-no-files-found: error
           retention-days: 2
+      - name: Report snapshot metadata
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' > /tmp/comment.json
+          import json
+          import os
+          from pathlib import Path
+          summary_path = Path('legacy-snapshot/summary.json')
+          summary = json.loads(summary_path.read_text(encoding='utf-8')) if summary_path.exists() else {}
+          body = '\n'.join([
+              '## 旧仓库只读快照',
+              '',
+              f"- 运行 ID：`{os.environ['RUN_ID']}`",
+              f"- 旧仓库树 SHA：`{summary.get('tree_sha', 'unknown')}`",
+              f"- 文件总数：{summary.get('blob_count', 'unknown')}",
+              f"- 答复文件数：{summary.get('reply_file_count', 'unknown')}",
+              f"- 下载文本文件数：{summary.get('downloaded_text_count', 'unknown')}",
+              f"- Tree API 是否截断：`{summary.get('truncated', 'unknown')}`",
+              '',
+              '旧仓库仅被读取，未执行任何写操作。',
+          ])
+          print(json.dumps({'body': body}, ensure_ascii=False))
+          PY
+          curl --fail-with-body -sS \
+            -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+            --data-binary @/tmp/comment.json
