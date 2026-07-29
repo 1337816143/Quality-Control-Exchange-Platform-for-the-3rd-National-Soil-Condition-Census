@@ -33,9 +33,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .v160/payload.part* | base64 --decode > /tmp/v160-payload.zip
-          echo '99ece19f01740d8662fe762593cd0141dd4ae3f45c82705d2c30de11a37de91c  /tmp/v160-payload.zip' | sha256sum --check
-          unzip -o /tmp/v160-payload.zip
+          cat .v160/payload.part* | base64 --decode > /tmp/v160-payload.tar.xz
+          echo '85e59fcffcd3262b5b53c716e2e38c573ae8232537f0ed9a76809ec230823e3a  /tmp/v160-payload.tar.xz' | sha256sum --check
+          tar -xJf /tmp/v160-payload.tar.xz
           rm -rf .v160
           rm -f v160-apply.trigger v160-tree.trigger legacy-snapshot-pr.trigger
 
