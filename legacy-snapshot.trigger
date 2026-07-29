@@ -1,1 +1,1 @@
-Read the legacy repository without modifying it and upload a text-and-metadata snapshot for the v1.6.0 parity migration.
+Read-only legacy snapshot retriggered after workflow registration. No files in the legacy repository may be modified.
