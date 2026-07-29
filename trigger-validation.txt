@@ -1,1 +1,1 @@
-Generate the validated v1.5.0 release artifact for atomic handoff to the Draft PR branch.
+Run hardened v1.5.0 generation, audit, cross-device tests and non-workflow release commit.
