@@ -1,0 +1,18 @@
+{
+  "name": "soil-quality-control-exchange-platform",
+  "version": "1.5.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/check-source.mjs && node scripts/validate-data.mjs && node scripts/check-logo.mjs",
+    "build": "node scripts/build.mjs",
+    "serve": "npm run build && http-server dist -p 4173 -c-1 --silent",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "http-server": "^14.1.1",
+    "pngjs": "^7.0.0",
+    "write-excel-file": "4.1.1"
+  }
+}
