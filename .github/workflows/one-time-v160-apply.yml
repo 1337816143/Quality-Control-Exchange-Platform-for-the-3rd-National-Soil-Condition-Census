@@ -1,0 +1,73 @@
+name: One-time v1.6.0 validated apply
+
+on:
+  pull_request:
+    branches: [admin-import-and-reference-files]
+    types: [synchronize]
+    paths: [v160-apply.trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-v1.6.0-validated-apply
+  cancel-in-progress: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout v1.6.0 branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/v1.6.0-legacy-parity
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Restore locally reviewed v1.6.0 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .v160/payload.part* | base64 --decode > /tmp/v160-payload.zip
+          echo '99ece19f01740d8662fe762593cd0141dd4ae3f45c82705d2c30de11a37de91c  /tmp/v160-payload.zip' | sha256sum --check
+          unzip -o /tmp/v160-payload.zip
+          rm -rf .v160
+          rm -f v160-apply.trigger v160-tree.trigger legacy-snapshot-pr.trigger
+
+      - name: Validate v1.6.0 in the complete repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          find src scripts tests -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
+          node --check upload-config.js
+          npm ci
+          npm audit --audit-level=high
+          npm run validate
+          npm run build
+          npx playwright install --with-deps chromium
+          npm run test:e2e -- --project=desktop
+          npm run test:e2e -- --project=tablet
+          npm run test:e2e -- --project=mobile
+
+      - name: Commit validated non-workflow v1.6.0 files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A -- \
+            CHANGELOG.md VERSION index.html upload-config.js package.json package-lock.json \
+            data docs scripts src tests \
+            .v160 v160-apply.trigger v160-tree.trigger legacy-snapshot-pr.trigger
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'No validated v1.6.0 changes to commit.' >&2
+            exit 1
+          fi
+          git commit -m 'feat: implement v1.6.0 legacy feature and data parity'
+          git push origin HEAD:refs/heads/agent/v1.6.0-legacy-parity
